@@ -1,5 +1,6 @@
 //To run the Project open Command Prompt and run:
-// cd C:\Users\HP\OneDrive\Desktop\compression run_with_password.bat
+//cd C:\Users\HP\OneDrive\Desktop\compression
+//run_with_password.bat
 // or from folder run_with_password.bat
 
 import javax.swing.*;
