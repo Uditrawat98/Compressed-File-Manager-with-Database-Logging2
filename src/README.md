@@ -38,6 +38,8 @@ The main code is contained inside [src folder](src)
 - `QueueLL.java`: A queue implementation using linked lists.
 - `SinglyLinkedList.java`: Basic singly linked list implementation.
 - `ThreadedText.java`: Manages text in a multithreaded environment.
+- `LoginFrame.java` : Implemented Using MYSQL to connect to database to check for User and Pass using JDBC driver.
+
 
 ## Getting Started
 
@@ -66,3 +68,6 @@ The main code is contained inside [src folder](src)
   1. Open the GUI.
   2. Select the compressed file.
   3. Click on the "Decompress" button and choose where to save the decompressed file.
+
+
+I added a simple login screen in Java Swing that talks to a MySQL database using the JDBC driver. I’m running MySQL locally and created the compressiondb database and users table from the MySQL command line, then connected to it from Java with a JDBC URL like jdbc:mysql://localhost:3306/compressiondb. When you type your username and password in the login window, the app sends a query to MySQL over JDBC to check if that user exists, and only then opens the main Huffman Encoder UI.
