@@ -20,6 +20,14 @@ This repository contains a Java-based implementation of a file compression syste
 - **User Interface**: A simple GUI (`EncoderGUI.java`) to interact with the system.
 - **Custom Data Structures**: Includes implementations of various data structures such as singly linked lists, priority queues, and more, tailored for the compression tasks.
 - **Progress Tracking**: Visual progress bar to monitor the compression/decompression process.
+- **MYSQL database logging**
+
+
+## Technologies Used:
+-Java
+-Maven
+-JDBC
+-MYSQL
 
 ## Code and Files
 The main code is contained inside [src folder](src)
