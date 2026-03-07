@@ -1,7 +1,7 @@
 @echo off
-cd /d "%~dp0src"
+cd /d "%~dp0src\main\java"
 rem MySQL JDBC driver (standalone - no slf4j needed)
-set CP=.;..\lib\mysql-connector-j-9.6.0.jar
+set CP=.;..\..\..\lib\mysql-connector-j-9.6.0.jar
 
 echo Compiling...
 javac -cp "%CP%" *.java

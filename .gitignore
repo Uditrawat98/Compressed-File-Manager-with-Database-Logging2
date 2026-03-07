@@ -1,0 +1,17 @@
+*.class
+*.log
+*.tmp
+*.bak
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Build / dependency outputs
+out/
+bin/
+target/
+
