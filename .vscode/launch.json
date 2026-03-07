@@ -3,9 +3,18 @@
     "configurations": [
         {
             "type": "java",
+            "name": "LoginFrame",
+            "request": "launch",
+            "mainClass": "LoginFrame",
+            "projectName": "",
+            "classPaths": ["${workspaceFolder}", "${workspaceFolder}/../lib/mysql-connector-j-9.6.0.jar"]
+        },
+        {
+            "type": "java",
             "name": "EncoderGUI",
             "request": "launch",
-            "mainClass": "EncoderGUI"
+            "mainClass": "EncoderGUI",
+            "classPaths": ["${workspaceFolder}", "${workspaceFolder}/../lib/mysql-connector-j-9.6.0.jar"]
         }
     ]
 }

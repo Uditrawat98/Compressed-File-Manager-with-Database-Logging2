@@ -1,8 +1,8 @@
-import java.io.*;
-import java.nio.file.*;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.locks.*;
+import java.io.*; // Provides classes for system input and output through data streams, serialization, and the file system.
+import java.nio.file.*; // Supplies classes and interfaces for file and directory paths, and operations like reading file lines.
+import java.time.LocalDateTime; // Used to get the current date and time without a timezone, for record timestamps.
+import java.util.*; // Contains utility classes like ArrayList and List used in storing history records.
+import java.util.concurrent.locks.*; // Provides locking mechanisms (e.g., ReentrantLock) for thread safety during concurrent access.
 
 public class DatabaseManager {
 
