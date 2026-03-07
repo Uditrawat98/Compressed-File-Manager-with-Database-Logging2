@@ -1,0 +1,5 @@
+file_id,file_name,file_path,file_type,original_size,compressed_size,compression_ratio,algorithm_used,created_at
+1,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:19:54.082829800
+2,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:23:39.900675800
+3,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:27:11.399592
+4,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:29:37.917832900
