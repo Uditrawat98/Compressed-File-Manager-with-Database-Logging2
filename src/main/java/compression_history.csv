@@ -3,3 +3,7 @@ file_id,file_name,file_path,file_type,original_size,compressed_size,compression_
 2,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:23:39.900675800
 3,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:27:11.399592
 4,weak.txt,C:\Users\HP\OneDrive\Desktop\weak.txt,txt,38872,22991,40.854599711874876,Huffman,2026-03-07T23:29:37.917832900
+5,udr.jpg,C:\Users\HP\OneDrive\Desktop\udr.jpg,jpg,24560607,24451243,0.44528215446792496,Huffman,2026-03-09T21:52:02.787535900
+6,udr.jpg,C:\Users\HP\OneDrive\Desktop\udr.jpg,jpg,24560607,24451243,0.44528215446792496,Huffman,2026-03-09T22:22:00.006978900
+7,udr.jpg,C:\Users\HP\OneDrive\Desktop\udr.jpg,jpg,24560607,24451243,0.44528215446792496,Huffman,2026-03-09T22:22:50.772792300
+8,udr.jpg,C:\Users\HP\OneDrive\Desktop\udr.jpg,jpg,24560607,24451255,0.4452332957406142,Huffman,2026-03-09T22:48:34.057965

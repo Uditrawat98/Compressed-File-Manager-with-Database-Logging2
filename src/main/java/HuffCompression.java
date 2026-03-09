@@ -2,31 +2,41 @@ import java.util.*;
 import java.io.*;
 
 public class HuffCompression {
-    private static StringBuilder sb = new StringBuilder();
-    private static Map<Byte, String> huffmap = new HashMap<>();
+    private static final StringBuilder sb = new StringBuilder();
+    private static final Map<Byte, String> huffmap = new HashMap<>();
+
+    private static final class ZipResult {
+        final byte[] bytes;
+        final int bitLength;
+
+        private ZipResult(byte[] bytes, int bitLength) {
+            this.bytes = bytes;
+            this.bitLength = bitLength;
+        }
+    }
 
     public static void compress(String src, String dst) {
         try {
-            FileInputStream inStream = new FileInputStream(src);
-            byte[] b = new byte[inStream.available()];
-            inStream.read(b);
-            byte[] huffmanBytes = createZip(b);
-            OutputStream outStream = new FileOutputStream(dst);
-            ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
-            objectOutStream.writeObject(huffmanBytes);
-            objectOutStream.writeObject(huffmap);
-            inStream.close();
-            objectOutStream.close();
-            outStream.close();
+            byte[] b = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(src));
+            ZipResult zipped = createZip(b);
+
+            try (OutputStream outStream = new FileOutputStream(dst);
+                 ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream)) {
+                objectOutStream.writeObject(zipped.bytes);
+                objectOutStream.writeObject(huffmap);
+                objectOutStream.writeInt(zipped.bitLength);
+                objectOutStream.writeUTF(getExtensionWithDot(src));
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private static byte[] createZip(byte[] bytes) {
+    private static ZipResult createZip(byte[] bytes) {
+        sb.setLength(0);
+        huffmap.clear();
         MinPriorityQueue<ByteNode> nodes = getByteNodes(bytes);
         ByteNode root = createHuffmanTree(nodes);
         Map<Byte, String> huffmanCodes = getHuffCodes(root);
-        byte[] huffmanCodeBytes = zipBytesWithCodes(bytes, huffmanCodes);
-        return huffmanCodeBytes;
+        return zipBytesWithCodes(bytes, huffmanCodes);
     }
 
     private static MinPriorityQueue<ByteNode> getByteNodes(byte[] bytes) {
@@ -75,46 +85,82 @@ public class HuffCompression {
         }
     }
 
-    private static byte[] zipBytesWithCodes(byte[] bytes, Map<Byte, String> huffCodes) {
-        StringBuilder strBuilder = new StringBuilder();
-        for (byte b : bytes)
-            strBuilder.append(huffCodes.get(b));
-
-        int length=(strBuilder.length()+7)/8;
-        byte[] huffCodeBytes = new byte[length];
-        int idx = 0;
-        for (int i = 0; i < strBuilder.length(); i += 8) {
-            String strByte;
-            if (i + 8 > strBuilder.length())
-                strByte = strBuilder.substring(i);
-            else strByte = strBuilder.substring(i, i + 8);
-            huffCodeBytes[idx] = (byte) Integer.parseInt(strByte, 2);
-            idx++;
+    private static ZipResult zipBytesWithCodes(byte[] bytes, Map<Byte, String> huffCodes) {
+        StringBuilder bitString = new StringBuilder();
+        for (byte b : bytes) {
+            bitString.append(huffCodes.get(b));
         }
-        return huffCodeBytes;
+
+        int bitLength = bitString.length();
+        int length = (bitLength + 7) / 8;
+        byte[] huffCodeBytes = new byte[length];
+
+        for (int idx = 0; idx < length; idx++) {
+            int start = idx * 8;
+            int end = Math.min(start + 8, bitLength);
+            String chunk = bitString.substring(start, end);
+            if (chunk.length() < 8) {
+                StringBuilder padded = new StringBuilder(chunk);
+                while (padded.length() < 8) padded.append('0');
+                chunk = padded.toString();
+            }
+            huffCodeBytes[idx] = (byte) Integer.parseInt(chunk, 2);
+        }
+        return new ZipResult(huffCodeBytes, bitLength);
     }
 
-    public static void decompress(String src, String dst) throws IOException, ClassNotFoundException {
+    public static String decompress(String src, String dst) throws IOException, ClassNotFoundException {
         try (FileInputStream inStream = new FileInputStream(src);
              ObjectInputStream objectInStream = new ObjectInputStream(inStream);
-             OutputStream outStream = new FileOutputStream(dst)) {
+             ) {
 
             byte[] huffmanBytes = (byte[]) objectInStream.readObject();
             Map<Byte, String> huffmanCodes =
                     (Map<Byte, String>) objectInStream.readObject();
 
-            byte[] bytes = decomp(huffmanCodes, huffmanBytes);
-            outStream.write(bytes);
+            int bitLength = -1;
+            String originalExt = "";
+            try {
+                bitLength = objectInStream.readInt();
+            } catch (EOFException ignored) {
+                // Older compressed files won't have a stored bit length.
+            }
+            try {
+                originalExt = objectInStream.readUTF();
+            } catch (EOFException ignored) {
+                // Older compressed files won't have the original extension.
+            }
+
+            byte[] bytes = decomp(huffmanCodes, huffmanBytes, bitLength);
+
+            String outPath = resolveOutputPath(dst, originalExt);
+            try (OutputStream outStream = new FileOutputStream(outPath)) {
+                outStream.write(bytes);
+            }
+            return outPath;
         }
     }
 
-    public static byte[] decomp(Map<Byte, String> huffmanCodes, byte[] huffmanBytes) {
-        StringBuilder sb1 = new StringBuilder();
-        for (int i=0; i<huffmanBytes.length; i++) {
-            byte b = huffmanBytes[i];
-            boolean flag = (i == huffmanBytes.length - 1);
-            sb1.append(convertbyteInBit(!flag, b));
+    public static byte[] decomp(Map<Byte, String> huffmanCodes, byte[] huffmanBytes, int bitLength) {
+        StringBuilder sb1 = new StringBuilder(huffmanBytes.length * 8);
+        if (bitLength > 0) {
+            for (byte b : huffmanBytes) {
+                int v = b & 0xFF;
+                String s = Integer.toBinaryString(v);
+                // pad to 8 bits
+                for (int i = s.length(); i < 8; i++) sb1.append('0');
+                sb1.append(s);
+            }
+            if (bitLength < sb1.length()) sb1.setLength(bitLength);
+        } else {
+            // Backward compatible path (may fail for some binary files)
+            for (int i = 0; i < huffmanBytes.length; i++) {
+                byte b = huffmanBytes[i];
+                boolean flag = (i == huffmanBytes.length - 1);
+                sb1.append(convertbyteInBit(!flag, b));
+            }
         }
+
         Map<String, Byte> map = new HashMap<>();
         for (Map.Entry<Byte, String> entry : huffmanCodes.entrySet()) {
             map.put(entry.getValue(), entry.getKey());
@@ -146,5 +192,32 @@ public class HuffCompression {
         if (flag || byte0 < 0)
             return str0.substring(str0.length() - 8);
         else return str0;
+    }
+
+    private static String getExtensionWithDot(String path) {
+        if (path == null) return "";
+        int dot = path.lastIndexOf('.');
+        if (dot != -1 && dot < path.length() - 1) {
+            return path.substring(dot);
+        }
+        return "";
+    }
+
+    private static String resolveOutputPath(String dst, String originalExtWithDot) {
+        if (dst == null || dst.isEmpty()) return dst;
+        if (originalExtWithDot == null) originalExtWithDot = "";
+        if (originalExtWithDot.isEmpty()) return dst;
+
+        String lowerDst = dst.toLowerCase(Locale.ROOT);
+        String lowerExt = originalExtWithDot.toLowerCase(Locale.ROOT);
+        if (lowerDst.endsWith(lowerExt)) return dst;
+
+        int lastSlash = Math.max(dst.lastIndexOf('/'), dst.lastIndexOf('\\'));
+        int lastDot = dst.lastIndexOf('.');
+        boolean hasExt = lastDot > lastSlash;
+        if (!hasExt) {
+            return dst + originalExtWithDot;
+        }
+        return dst;
     }
 }

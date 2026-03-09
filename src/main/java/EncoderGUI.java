@@ -236,16 +236,11 @@ public class EncoderGUI extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String ext = "";
-            int dotIndex = path.lastIndexOf('.');
-            if (dotIndex != -1 && dotIndex < path.length() - 1) {
-                ext = path.substring(dotIndex);
-            }
-            String dir = f.getParent() + File.separator + "decompressed" + ext;
             try {
-                HuffCompression.decompress(path, dir);
+                String outBase = f.getParent() + File.separator + "decompressed";
+                String outPath = HuffCompression.decompress(path, outBase);
                 JOptionPane.showMessageDialog(null, "File has been decompressed and saved at" +
-                        " the location: " + dir);
+                        " the location: " + outPath);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(null,
